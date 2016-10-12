@@ -29,7 +29,7 @@ sub _build_user_agent {
     my ($self) = @_;
 
     my $user_agent = LWP::UserAgent->new;
-    $user_agent->timeout(10);
+    $user_agent->timeout(30);
     $user_agent->env_proxy;
 
     return $user_agent;
@@ -41,9 +41,12 @@ sub _build_config {
     my $config_filename =
         file(Business::TNT::ExpressConnect::SPc->sysconfdir, 'tnt-expressconnect.ini');
 
-    return Config::INI::Reader->read_file($config_filename) if (-r $config_filename);
+    unless (-r $config_filename) {
+        $self->warnings(['could not read config file '.$config_filename]);
+        return {};
+    }
 
-    return {};
+    return Config::INI::Reader->read_file($config_filename);
 }
 
 sub _build_username {
@@ -61,7 +64,7 @@ sub _build_password {
 sub _build_xml_schema {
     my ($self) = @_;
 
-    my $xsd_file   = file($self->_price_request_common_xsd)->relative->stringify;
+    my $xsd_file   = $self->_price_request_common_xsd;
     my $xml_schema = XML::Compile::Schema->new($xsd_file);
 
     return $xml_schema;
@@ -72,19 +75,30 @@ sub _xsd_basedir {
 }
 
 sub _price_request_in_xsd {
-    return _xsd_basedir->file('PriceRequestIN.xsd');
+    my $file = _xsd_basedir->file('PriceRequestIN.xsd');
+
+    die "cannot read request IN xsd file " . $file unless (-r $file);
+
+    return $file;
 }
 
 sub _price_request_out_xsd {
     my ($self) = @_;
+    my $file = _xsd_basedir->file('PriceResponseOUT.xsd');
 
-    return _xsd_basedir->file('PriceResponseOUT.xsd');
+    die "cannot read request OUT xsd file " . $file unless (-r $file);
+
+    return $file;
 }
 
 sub _price_request_common_xsd {
     my ($self) = @_;
 
-    return _xsd_basedir->file('commonDefinitions.xsd');
+    my $file = _xsd_basedir->file('commonDefinitions.xsd');
+
+    die "cannot read common definitions xsd file " . $file unless (-r $file);
+
+    return $file;
 }
 
 sub tnt_get_price_url {
@@ -189,6 +203,7 @@ sub get_prices {
     my $ratedService  = $ratedServices->{ratedService};
 
     my %prices;
+    my $i = 0;
     foreach my $option (@$ratedService) {
         $prices{$option->{product}->{id}} = {
             price_desc           => $option->{product}->{productDesc},
@@ -197,6 +212,7 @@ sub get_prices {
             total_price_excl_vat => $option->{totalPriceExclVat},
             vat_amount           => $option->{vatAmount},
             charge_elements      => $option->{chargeElements},
+            sort_index           => $i++,
         };
     }
 
@@ -221,9 +237,16 @@ Business::TNT::ExpressConnect - TNT ExpressConnect interface
 
 =head1 SYNOPSIS
 
+    # read config from config file
     my $tnt = Business::TNT::ExpressConnect->new();
+
+    # provide username and password
+    my $tnt = Business::TNT::ExpressConnect->new({username => 'john', password => 'secret'});
+
+    # use xml file to define the request
     my $tnt_prices = $tnt->get_prices({file => $xml_filename});
 
+    #use a hash to define the request
     my %params = (
         sender             => {country => 'AT', town => 'Vienna',    postcode => 1020},
         delivery           => {country => 'AT', town => 'Schwechat', postcode => '2320'},
@@ -238,10 +261,28 @@ Business::TNT::ExpressConnect - TNT ExpressConnect interface
 
     warn join("\n",@{$tnt->errors}) unless ($tnt_prices);
 
+    # tnt prices structure
+    $tnt_prices = {
+          '10' => {
+                  'charge_elements' => 'HASH(0x40a5f40)',
+                  'total_price_excl_vat' => '96.14',
+                  'vat_amount' => '19.23',
+                  'price_desc' => '10:00 Express',
+                  'total_price' => '115.37',
+                  'sort_index' => 1,
+                  'currency' => 'EUR'
+                },
+          '09' => {
+                  'currency' => 'EUR',
+                  'sort_index' => 0,
+                  'charge_elements' => 'HASH(0x40b0130)',
+                  'total_price_excl_vat' => '101.79',
+                  'vat_amount' => '20.36',
+                  'total_price' => '122.15',
+                  'price_desc' => '9:00 Express'
+                },
+        };
 
-=head1 NOTE
-
-WORK IN PROGRESS
 
 =head1 DESCRIPTION
 
@@ -251,6 +292,27 @@ WORK IN PROGRESS
 
     username = john
     password = secret
+
+=head1 METHODS
+
+=head2 get_prices(\%hash)
+
+get_prices({file => $filename}) or get_prices({params => \%params})
+
+Returns a hash of tnt products for that request or undef in case of error.
+$tnt->errors returns an array ref with error messages.
+
+=head2 hash_to_price_request_xml(\%hash)
+
+Takes a hash and turns it into a XML::LibXML::Document for a price request.
+
+=head2 http_ping
+
+Check if tnt server is reachable.
+
+=head2 tnt_get_price_url
+
+Returns the URL of the TNT price check interface.
 
 =head1 AUTHOR
 
