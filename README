@@ -3,11 +3,21 @@ NAME
 
 SYNOPSIS
         my $tnt = Business::TNT::ExpressConnect->new();
-        my $tnt_prices = $tnt->get_price(
-            sender => {},
-            delivery => {},
-            collection_datetime => {},
-        )
+        my $tnt_prices = $tnt->get_prices({file => $xml_filename});
+
+        my %params = (
+            sender             => {country => 'AT', town => 'Vienna',    postcode => 1020},
+            delivery           => {country => 'AT', town => 'Schwechat', postcode => '2320'},
+            consignmentDetails => {
+                totalWeight         => 1.25,
+                totalVolume         => 0.1,
+                totalNumberOfPieces => 1
+            }
+        );
+
+        $tnt_prices = $tnt->get_prices({params => \%params});
+
+        warn join("\n",@{$tnt->errors}) unless ($tnt_prices);
 
 NOTE
     WORK IN PROGRESS
