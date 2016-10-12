@@ -29,7 +29,7 @@
           <xs:documentation>A short description of the product e.g. Express</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="type" type="xs:string" minOccurs="0">
+      <xs:element name="type" type="xs:string" minOccurs="1">
         <xs:annotation>
           <xs:documentation>Type of service for product chosen. Values are "D" for a document or "N" for non-documents.
             This is a mandatory element.</xs:documentation>

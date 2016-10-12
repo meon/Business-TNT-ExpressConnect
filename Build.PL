@@ -21,11 +21,13 @@ my $builder = Module::Build::SysPath->new(
     requires => {
         'perl'                 => '5.010',
         'Path::Class'          => 0.04,      # mkpath()
-        'Data::UUID::LibUUID'  => 0,
         'DateTime'             => 0,
         'Config::INI::Reader'  => 0,
         'XML::Compile::Schema' => 0,
+        'XML::Compile::Util'   => 0,
         'LWP::UserAgent'       => 0,
+        'Moose'                => 0,
+        'DateTime'             => 0,
     },
     script_files => [qw(
             )

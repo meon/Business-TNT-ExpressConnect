@@ -111,7 +111,7 @@
 
   <xs:complexType name="chargeElements">
     <xs:sequence>
-      <xs:element name="chargeElement" type="chargeElement" maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="chargeElement" type="chargeElement" maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>Each chargeElement contains a specific item of price breakdown information that relates to
             the total price returned.
@@ -167,9 +167,9 @@
 
   <xs:complexType name="errors">
     <xs:sequence>
-      <xs:element name="runtimeError" type="runtimeError" maxOccurs="unbounded" minOccurs="0"/>
-      <xs:element name="parseError" type="parseError" maxOccurs="unbounded" minOccurs="0"/>
-      <xs:element name="brokenRule" type="brokenRule" maxOccurs="unbounded" minOccurs="0" />
+      <xs:element name="runtimeError" type="runtimeError" maxOccurs="unbounded" />
+      <xs:element name="parseError" type="parseError" maxOccurs="unbounded" />
+      <xs:element name="brokenRule" type="brokenRule" maxOccurs="unbounded" />
     </xs:sequence>
   </xs:complexType>
 
