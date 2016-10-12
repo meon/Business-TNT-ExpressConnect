@@ -286,6 +286,10 @@ Business::TNT::ExpressConnect - TNT ExpressConnect interface
 
 =head1 DESCRIPTION
 
+Calculate prices for TNT delivery.
+
+Schema definitions and user guides: https://express.tnt.com/expresswebservices-website/app/pricingrequest.html
+
 =head1 CONFIGURATION
 
 =head2 etc/tnt-expressconnect.ini

@@ -49,6 +49,12 @@ SYNOPSIS
             };
 
 DESCRIPTION
+    Calculate prices for TNT delivery.
+
+    Schema definitions and user guides:
+    https://express.tnt.com/expresswebservices-website/app/pricingrequest.ht
+    ml
+
 CONFIGURATION
   etc/tnt-expressconnect.ini
         username = john
