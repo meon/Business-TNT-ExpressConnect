@@ -37,6 +37,13 @@ my $builder = Module::Build::SysPath->new(
     ],
     add_to_cleanup => ['Business-TNT-ExpressConnect-*'],
     create_readme  => 1,
+    meta_merge => {
+        resources => {
+            repository => 'https://github.com/meon/Business-TNT-ExpressConnect.git',
+            bugtracker => 'https://github.com/meon/Business-TNT-ExpressConnect/issues',
+        },
+        keywords => [ qw/ TNT ExpressConnect shipping price / ],
+    },
 );
 
 $builder->create_build_script();
